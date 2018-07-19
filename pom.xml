@@ -144,7 +144,7 @@
         <repository>
             <id>hyht-repo</id>
             <name>hyht-repo</name>
-            <url>http://106.14.216.224:16000/repository/maven-public/</url>
+            <url>http://139.224.117.253:16000/repository/maven-public/</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
