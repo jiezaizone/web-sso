@@ -13,7 +13,7 @@ import com.isuwang.web.sso.comm.utils.PasswordUtil;
 public class PasswordUtilsTest {
     public static void main(String[] args) {
         String password = "123456";
-        String username = "zhangxb";
+        String username = "jiezai";
         String pm = PasswordUtil.springSecurityPasswordEncode(password, username);
         System.out.println(pm);
     }

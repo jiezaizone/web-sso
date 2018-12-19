@@ -25,3 +25,6 @@ CREATE TABLE `userinfo` (
   `password` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+INSERT INTO `userinfo` VALUES ('7463ecb6836111e88cba7cd30ae015b0', 'jiezai', 'Y1VijL25Ob3crLmvwAFZAILxszAhnJr3N9HswmoKp3U=');

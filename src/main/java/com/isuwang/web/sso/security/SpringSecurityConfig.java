@@ -38,7 +38,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
 
         http.authorizeRequests()
-                .antMatchers("/login").permitAll()//不拦截的接口
+                .antMatchers("/login","/check/token/*","/refresh/token/*","/cur/user/*","/logout/*").permitAll()//不拦截的接口
                 .antMatchers("/**").access("hasRole('ROLE_OC_USER')")//拦截的接口
                 .and().httpBasic()
                 .and().csrf().disable()

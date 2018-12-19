@@ -2,10 +2,7 @@ package com.isuwang.web.sso.open;
 
 import com.isuwang.web.sso.comm.AbstractRestController;
 import com.isuwang.web.sso.comm.RestResponse;
-import com.isuwang.web.sso.comm.utils.JSONUtil;
-import com.isuwang.web.sso.comm.utils.JSONUtil2;
-import com.isuwang.web.sso.comm.utils.PasswordUtil;
-import com.isuwang.web.sso.comm.utils.UUIDGenerator;
+import com.isuwang.web.sso.comm.utils.*;
 import com.isuwang.web.sso.config.redis.RedisCacheService;
 import com.isuwang.web.sso.dbmapper.UserMapper;
 import com.isuwang.web.sso.dbmodel.User;
@@ -34,22 +31,25 @@ public class SsoController extends AbstractRestController{
     /**
      * 登录接口
      * @param username 用户名
-     * @param passwd 密码
+     * @param password 密码
      * @return
      */
     @RequestMapping(value = "/login",method = RequestMethod.POST)
-    public RestResponse login(String username, String passwd){
+    public RestResponse login(String username, String password){
         UserExample example =new UserExample();
         example.createCriteria().andUsernameEqualTo(username);
         List<User> list = userMapper.selectByExample(example);
         if(1 == list.size()){
             User user = list.get(0);
-            String pm = PasswordUtil.springSecurityPasswordEncode(passwd, username);
+            String pm = PasswordUtil.springSecurityPasswordEncode(password, username);
             if (pm.equals(user.getPassword())) {
                 //保存到redis,根据凭证找用户
+                Long cur = System.currentTimeMillis();
+                cur+=30*60*1000;
                 String token = "token_api_"+ UUIDGenerator.uuid();
                 redisCacheService.set(token,username,30*60);//使用token为key，存用户名 超过30*60秒自动删除
-                redisCacheService.setObject(username,user);//使用用户名为key存用户信息
+                redisCacheService.set(token+"_time",cur.toString(),30*60);
+                redisCacheService.setObject(username,user,30*60);//使用用户名为key存用户信息
                 //请随便改造吧。返回内容
                 Map map = new HashMap<>();
                 map.put("token",token);
@@ -58,6 +58,7 @@ public class SsoController extends AbstractRestController{
         }
         return RestResponse.failed("0020","用户名或密码不正确");
     }
+
 
     /**
      * 新增用户
@@ -79,19 +80,67 @@ public class SsoController extends AbstractRestController{
      * @return
      */
     @RequestMapping(value = "/to/logout",method = RequestMethod.GET)
-    public RestResponse logout(){
+    public RestResponse toLogout(){
         redisCacheService.del(getCurrentAccountUserName());
         return RestResponse.success("登出成功");
     }
-    @RequestMapping(value = "/cur/user",method = RequestMethod.GET)
-    public RestResponse token(){
-        String username = getCurrentAccountUserName();
-        String str = redisCacheService.get(username);
-        User user = JSONUtil2.fromJson(str,User.class);
-//        redisCacheService.set(token,username,30*60);//使用token为key，存用户名 超过30*60秒自动删除
-//        redisCacheService.setObject(username,user);/
-//        redisCacheService.del(getCurrentAccountUserName());
-        return RestResponse.success(user);
+    @RequestMapping(value = "/logout/{token}",method = RequestMethod.GET)
+    public RestResponse logout(@PathVariable String token){
+        String username = redisCacheService.get(token);
+        if(StringUtil.isNotBlank(username)){
+            redisCacheService.del(username);
+            redisCacheService.del(token);
+            redisCacheService.del(token+"_time");
+        }
+        return RestResponse.success("登出成功");
+    }
+
+    /**
+     * 根据token获取用户信息
+     * @param token
+     * @return
+     */
+    @RequestMapping(value = "/cur/user/{token}",method = RequestMethod.GET)
+    public RestResponse getCurUser(@PathVariable String token){
+        String username = redisCacheService.get(token);
+        if(StringUtil.isNotBlank(username)){
+            String str = redisCacheService.get(username);
+            User user = JSONUtil2.fromJson(str,User.class);
+            return RestResponse.success(user);
+        }else{
+            return RestResponse.failed("0000","token不存在！");
+        }
+
+    }
+
+    //检查token的有效性
+    @RequestMapping(value = "/check/token/{token}",method = RequestMethod.GET)
+    public RestResponse checkToken(@PathVariable String token){
+        String username = redisCacheService.get(token);
+        if(StringUtil.isNotBlank(username)){
+            return RestResponse.success("当前token在有效期内");
+        }else{
+            return RestResponse.failed("0000","token不存在！");
+        }
+    }
+    //刷新token
+    @RequestMapping(value = "/refresh/token/{token}",method = RequestMethod.GET)
+    public RestResponse refreshToken(@PathVariable String token){
+        String username = redisCacheService.get(token);
+        if(StringUtil.isNotBlank(username)){
+            Long cur = System.currentTimeMillis();
+            cur+=30*60*1000;
+
+            redisCacheService.expire(token,30*60);
+            redisCacheService.expire(token+"_time",30*60);
+            redisCacheService.expire(username,30*60);
+
+            Map map = new HashMap();
+            map.put("time",cur);
+            return RestResponse.success(map);
+        }else{
+            return RestResponse.failed("0000","token不存在！");
+        }
     }
 
 }

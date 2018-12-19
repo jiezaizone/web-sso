@@ -520,6 +520,10 @@ public class RedisCacheService {
         obj = obj == null ? new Object():obj;
         this.set(key, JSONUtil2.objectToJson(obj));
     }
+    public  void setObject(String key ,Object obj,long expire) {
+        obj = obj == null ? new Object():obj;
+        this.set(key, JSONUtil2.objectToJson(obj),expire);
+    }
 
     /**
      * 获取对象
