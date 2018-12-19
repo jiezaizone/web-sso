@@ -1,9 +1,7 @@
 package com.isuwang.web.sso.security;
 
-import com.ihyht.basic.platform.cache.manager.RedisCacheService;
-import com.ihyht.basic.platform.core.utils.PasswordUtil;
-import com.ihyht.basic.platform.core.utils.UUIDGenerator;
-import com.ihyht.basic.platform.framework.web.rest.RestResponse;
+import com.isuwang.web.sso.comm.utils.UUIDGenerator;
+import com.isuwang.web.sso.config.redis.RedisCacheService;
 import com.isuwang.web.sso.dbmapper.UserMapper;
 import com.isuwang.web.sso.dbmodel.UserExample;
 import org.springframework.beans.factory.annotation.Autowired;

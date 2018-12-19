@@ -1,9 +1,7 @@
 package com.isuwang.web.sso.comm;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.ihyht.basic.platform.core.exceptions.ApiReturnCodeEnum;
-import com.ihyht.basic.platform.core.exceptions.HyhtApiException;
-import com.ihyht.basic.platform.framework.web.rest.RestResponse;
+import com.isuwang.web.sso.comm.utils.HyhtApiException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,7 +27,7 @@ public abstract class AbstractRestController {
      */
     @ExceptionHandler(Exception.class)
     public RestResponse exp(HttpServletRequest request, Exception ex) {
-        RestResponse failed;
+        RestResponse failed ;
         Throwable resultEx;
         Throwable cause = ex.getCause();
         if(cause != null){

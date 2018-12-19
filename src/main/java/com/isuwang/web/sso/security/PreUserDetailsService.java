@@ -1,7 +1,6 @@
 package com.isuwang.web.sso.security;
 
-import com.ihyht.basic.platform.cache.manager.RedisCacheService;
-import com.ihyht.basic.platform.core.utils.StringUtil;
+import com.isuwang.web.sso.config.redis.RedisCacheService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

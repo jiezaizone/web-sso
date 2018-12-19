@@ -77,7 +77,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
         provider.setPasswordEncoder(getPasswordEncode());
 
         provider.setHideUserNotFoundExceptions(false);
-
+//设置拦截器，可以在这里调试拦截器的拦截顺序
         auth.authenticationProvider(preAuthenticationProvider());
         auth.authenticationProvider(provider);
 

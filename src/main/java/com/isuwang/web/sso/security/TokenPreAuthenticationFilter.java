@@ -1,6 +1,6 @@
 package com.isuwang.web.sso.security;
 
-import com.ihyht.basic.platform.framework.web.utils.WebUtils;
+import com.isuwang.web.sso.comm.utils.WebUtils;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 

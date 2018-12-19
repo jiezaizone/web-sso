@@ -1,7 +1,7 @@
 package com.isuwang.web.sso;
 
 
-import com.ihyht.basic.platform.cache.FrameworkCacheConfig;
+import com.isuwang.web.sso.config.redis.FrameworkCacheConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration;

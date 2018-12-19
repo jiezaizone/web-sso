@@ -1,19 +1,24 @@
 package com.isuwang.web.sso.open;
 
-import com.ihyht.basic.platform.cache.manager.RedisCacheService;
-import com.ihyht.basic.platform.core.utils.PasswordUtil;
-import com.ihyht.basic.platform.core.utils.UUIDGenerator;
-import com.ihyht.basic.platform.framework.web.rest.RestResponse;
 import com.isuwang.web.sso.comm.AbstractRestController;
+import com.isuwang.web.sso.comm.RestResponse;
+import com.isuwang.web.sso.comm.utils.JSONUtil;
+import com.isuwang.web.sso.comm.utils.JSONUtil2;
+import com.isuwang.web.sso.comm.utils.PasswordUtil;
+import com.isuwang.web.sso.comm.utils.UUIDGenerator;
+import com.isuwang.web.sso.config.redis.RedisCacheService;
 import com.isuwang.web.sso.dbmapper.UserMapper;
 import com.isuwang.web.sso.dbmodel.User;
 import com.isuwang.web.sso.dbmodel.UserExample;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by zhangxibin on 2017/8/28.
@@ -33,7 +38,7 @@ public class SsoController extends AbstractRestController{
      * @return
      */
     @RequestMapping(value = "/login",method = RequestMethod.POST)
-    public RestResponse login( String username, String passwd){
+    public RestResponse login(String username, String passwd){
         UserExample example =new UserExample();
         example.createCriteria().andUsernameEqualTo(username);
         List<User> list = userMapper.selectByExample(example);
@@ -42,10 +47,13 @@ public class SsoController extends AbstractRestController{
             String pm = PasswordUtil.springSecurityPasswordEncode(passwd, username);
             if (pm.equals(user.getPassword())) {
                 //保存到redis,根据凭证找用户
-                String token = "token_api_"+UUIDGenerator.uuid();
+                String token = "token_api_"+ UUIDGenerator.uuid();
                 redisCacheService.set(token,username,30*60);//使用token为key，存用户名 超过30*60秒自动删除
                 redisCacheService.setObject(username,user);//使用用户名为key存用户信息
-                return RestResponse.success(token);
+                //请随便改造吧。返回内容
+                Map map = new HashMap<>();
+                map.put("token",token);
+                return RestResponse.success(map);
             }
         }
         return RestResponse.failed("0020","用户名或密码不正确");
@@ -75,6 +83,15 @@ public class SsoController extends AbstractRestController{
         redisCacheService.del(getCurrentAccountUserName());
         return RestResponse.success("登出成功");
     }
-
+    @RequestMapping(value = "/cur/user",method = RequestMethod.GET)
+    public RestResponse token(){
+        String username = getCurrentAccountUserName();
+        String str = redisCacheService.get(username);
+        User user = JSONUtil2.fromJson(str,User.class);
+//        redisCacheService.set(token,username,30*60);//使用token为key，存用户名 超过30*60秒自动删除
+//        redisCacheService.setObject(username,user);/
+//        redisCacheService.del(getCurrentAccountUserName());
+        return RestResponse.success(user);
+    }
 
 }
